@@ -1,6 +1,7 @@
 import { ChangeEvent, useEffect, useState } from "react"
+import Recipe from "./components/Recipe"
 
-interface Recipe {
+export interface IRecipe {
   id: string
   name: string
   ingredients: string[]
@@ -8,8 +9,11 @@ interface Recipe {
   imageURL?: string
 }
 
+const BASE_URL = "http://localhost:3000"
+
 export default function App() {
-  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [recipes, setRecipes] = useState<IRecipe[]>([])
+  const [recipe, setRecipe] = useState<IRecipe>()
   const [search, setSearch] = useState<string>('')
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,11 +24,20 @@ export default function App() {
   const getRecipes = async (query: string) => {
     const ingredients = query.split(",")
 
-    const response = await fetch(`http://localhost:3000/recipes?q=${ingredients}`);
+    const response = await fetch(`${BASE_URL}/recipes?q=${ingredients}`);
     if (!response.ok) throw new Error('Failed to fetch data');
 
     const data = await response.json();
     setRecipes(data);
+  }
+
+
+  const getRecipeById = async (id: string) => {
+    const response = await fetch(`${BASE_URL}/recipes/${id}`);
+    if (!response.ok) throw new Error('Failed to fetch data');
+    const data: IRecipe = await response.json();
+    console.log(data, response)
+    setRecipe(data);
   }
 
   useEffect(() => { getRecipes(search) }, [search])
@@ -35,17 +48,22 @@ export default function App() {
       <h1> Recipes </h1>
       <input type="text" name="q" onChange={handleSearch} value={search} />
       <div className="recipes">
-        {recipes.map((recipe: Recipe) =>
+        {recipes.map((recipe: IRecipe) =>
           <div key={recipe.id}>
-            <h2>{recipe.name}</h2>
-            <img src={recipe.imageURL} alt={`A ${recipe.name} dish`} />
-            <p> Ingredients: {recipe.ingredients.join(',')}</p>
-            <ol>
-              {recipe.instructions.map((step, i) => <li key={`${i}-${step[0]}`}>{step}</li>)}
-            </ol>
+            <Recipe
+              name={recipe.name}
+              ingredients={recipe.ingredients}
+              imageURL={recipe.imageURL}
+              onClick={() => getRecipeById(recipe.id)}
+            />
           </div>
         )}
       </div>
+      {recipe &&
+        <div id="selected-recipe">
+          <Recipe name={recipe.name} ingredients={recipe.ingredients} instructions={recipe.instructions} imageURL={recipe.imageURL} />
+        </div>
+      }
     </main>
   )
 }
