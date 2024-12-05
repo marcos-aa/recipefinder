@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useState } from "react"
+import "./App.css"
 import Recipe from "./components/Recipe"
-
 export interface IRecipe {
   id: string
   name: string
@@ -60,10 +60,13 @@ export default function App() {
         )}
       </div>
       {recipe &&
-        <div id="selected-recipe">
-          <Recipe name={recipe.name} ingredients={recipe.ingredients} instructions={recipe.instructions} imageURL={recipe.imageURL} />
+        <div id="recipe-modal">
+          <div id="selected-recipe">
+            <Recipe name={recipe.name} ingredients={recipe.ingredients} instructions={recipe.instructions} imageURL={recipe.imageURL} />
+          </div>
         </div>
       }
+
     </main>
   )
 }
