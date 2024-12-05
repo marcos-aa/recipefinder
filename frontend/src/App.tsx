@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 
 interface Recipe {
   id: string
@@ -13,7 +13,22 @@ export default function App() {
   const [search, setSearch] = useState<string>('')
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearch(value)
   }
+
+  const getRecipes = async (query: string) => {
+    const ingredients = query.split(",")
+
+    const response = await fetch(`http://localhost:3000/recipes?q=${ingredients}`);
+    if (!response.ok) throw new Error('Failed to fetch data');
+
+    const data = await response.json();
+    setRecipes(data);
+  }
+
+  useEffect(() => { getRecipes(search) }, [search])
+
 
   return (
     <main>
@@ -26,7 +41,7 @@ export default function App() {
             <img src={recipe.imageURL} alt={`A ${recipe.name} dish`} />
             <p> Ingredients: {recipe.ingredients.join(',')}</p>
             <ol>
-              {recipe.instructions.map((step) => <li>{step}</li>)}
+              {recipe.instructions.map((step, i) => <li key={`${i}-${step[0]}`}>{step}</li>)}
             </ol>
           </div>
         )}
