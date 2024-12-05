@@ -3,7 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgres"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+}
+
+model Recipe {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  ingredients   String[]
+  instructions  String[]
+  imageURL      String?
 }
