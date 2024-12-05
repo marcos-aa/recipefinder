@@ -11,6 +11,19 @@ export default class RecipeService {
     }
   }
 
+  async getRecipesByIngredient(ingredients: string[]): Promise<Recipe[]> {
+    const recipes = await prisma.recipe.findMany({
+      where: {
+        AND: ingredients.map(ingredient => ({
+          ingredients: {
+            hasSome: [ingredient]
+          }
+        }))
+      }
+    });
+    return recipes;
+  };
+  
   async getRecipeById(id: string): Promise<Recipe | null> {
     try {
       return await prisma.recipe.findUnique({
